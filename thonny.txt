@@ -1,0 +1,37 @@
+from wifi import Red
+from umqtt.robust import MQTTClient
+from machine import Pin
+import dht,time,urequests,ujson
+
+sensor = dht.DHT11(Pin(2))
+
+Red("erick","12345678lol")
+
+idclient="ddd"
+servidor="driver.cloudmqtt.com"
+puerto=18946
+usuario="ewdpapwh"
+clave="7vv-d_G6tbWC"
+
+client= MQTTClient(idclient,servidor,puerto,usuario,clave)
+client.connect()
+print("estas conectado a cloudmqtt!!")
+
+def enviarDatos(temperatura,humedad):
+    url="https://inf640-2-2024-dlb.servicioiot.xyz/enviardatos.php"
+    data={
+        "temperatura":temperatura,
+        "humedad":humedad,
+    }
+    header ={'Content-type':'aplication/json'}
+    response = urequests.post(url,json=data,headers=header)
+    print(response.content)
+    
+while True:
+    sensor.measure()
+    t=sensor.temperature()
+    h=sensor.humidity()
+    client.publish(b"apellidos/temp",str(t))
+#     enviarDatos(t,h)
+    print("temp:",t,"--- hum :",h)
+    time.sleep(3)
